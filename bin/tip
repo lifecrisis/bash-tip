@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# Usage: tip [-e] [-h] [--] COMMAND
+# Print tips on the usage of the given COMMAND.  Use the "-e" option to edit
+# the named tip file.
+#
+# BASH_VERSION="4.4.19(1)-release"
+
+
+# The "TIP_DIR" environment variable tells us where tips are kept.
+if [[ -z "${TIP_DIR+x}" ]]; then
+  echo 'tip: not configured' >&2 && exit 2
+fi
+
+# Remove trailing slash.
+TIP_DIR="${TIP_DIR%/}"
+
+# Default behavior is to print the tip.
+EDIT=0
+
+usage() {
+  cat <<EOF
+Usage: tip [-e] [-h] [--] COMMAND
+Print tips on the usage of the given COMMAND.  Use the "-e" option to edit
+the named tip file.
+EOF
+}
+
+while getopts ':eh' opt; do
+
+  if [[ "$opt" = '?' ]]; then
+    echo "${0##*/}: invalid option -- '$OPTARG'" >&2 && exit 2
+  fi
+
+  test "$opt" = 'e' && EDIT=1
+  test "$opt" = 'h' && usage && exit
+done
+shift $((OPTIND - 1))
+
+case $# in
+  0)
+    echo 'tip: argument required' >&2 && exit 2
+    ;;
+  1)
+    file="$TIP_DIR/$1"
+    ;;
+  *)
+    echo 'tip: too many arguments' >&2 && exit 2
+    ;;
+esac
+
+edit_tip() {
+
+  if [[ -f "$file" ]]; then
+
+    if [[ ! -r "$file" || ! -w "$file" ]]; then
+      echo 'tip: cannot edit tip file' >&2 && exit 1
+    fi
+  fi
+
+  ${VISUAL:-vi} "$file"
+}
+
+print_tip() {
+  local tip_lines
+
+  if [[ ! -f "$file" ]]; then
+    echo 'tip: not found' >&2 && exit 1
+  fi
+
+  if [[ ! -r "$file" ]]; then
+    echo 'tip: cannot read tip file' >&2 && exit 1
+  fi
+
+  tip_lines=$(wc -l <"$file")
+
+  if [[ $tip_lines -ge $(tput lines) ]]; then
+    less -X <"$file"
+    return
+  fi
+
+  cat "$file"
+}
+
+if [[ $EDIT -eq 1 ]]; then
+  edit_tip
+  exit
+fi
+
+print_tip
+exit
