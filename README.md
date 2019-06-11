@@ -36,8 +36,8 @@ Simply put, `tip` lets you create "tip files" to remind yourself at a later
 time how to run a tricky command.
 
 You may only run, for example, the `rsync` command rarely, and you don't
-bother to remember the syntax.  If you add some reminders for yourself in
-a tip file, the `tip rsync` command may show something like this:
+bother to remember how you did it.  If you add some reminders for yourself
+in a tip file, the `tip rsync` command may show something like this:
 
 ```
 # Sync from the "/path/to/foo" directory to the "/path/to/bar/foo" directory.
