@@ -88,4 +88,3 @@ if [[ $EDIT -eq 1 ]]; then
 fi
 
 print_tip
-exit
